@@ -381,6 +381,8 @@ module "postgresql" {
   create_db_parameter_group   = true  # Always create parameter group
   create_db_option_group      = true  # Always create option group
   manage_master_user_password = false # Do not manage master password
+
+  db_name = each.value.db_name
 }
 
 # Resource Groups - https://www.terraform.io/docs/providers/aws/r/resourcegroups_group.html

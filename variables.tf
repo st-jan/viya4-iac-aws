@@ -622,6 +622,7 @@ variable "postgres_server_defaults" {
   description = "Map of PostgresSQL server default objects."
   type        = any
   default = {
+    db_name                 = "SharedServices"
     instance_type           = "db.m6idn.xlarge"
     storage_size            = 128
     storage_encrypted       = true

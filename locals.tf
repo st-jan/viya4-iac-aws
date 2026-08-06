@@ -269,6 +269,7 @@ locals {
     k => {
       "server_name" : module.postgresql[k].db_instance_identifier,
       "fqdn" : module.postgresql[k].db_instance_address,
+      "db_name" : module.postgresql[k].db_name
       "admin" : module.postgresql[k].db_instance_username,
       "password" : local.postgres_servers[k].administrator_password,
       "server_port" : module.postgresql[k].db_instance_port
