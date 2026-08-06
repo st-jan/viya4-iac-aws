@@ -179,6 +179,23 @@ module "eks" {
     "additional" : "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
   }
 
+  # Core add-ons must be explicitly declared now that bootstrap_self_managed_addons is hardcoded false in v21.
+  addons = {
+    vpc-cni = {
+      most_recent = true
+    }
+    kube-proxy = {
+      most_recent = true
+    }
+    coredns = {
+      most_recent = true
+    }
+    aws-ebs-csi-driver = {
+      most_recent              = true
+      service_account_role_arn = module.ebs.ebs_csi_account
+    }
+  }
+
   ## Any individual Node Group customizations should go here
   eks_managed_node_groups = local.node_groups # Node group definitions (from locals)
 }

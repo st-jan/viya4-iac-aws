@@ -81,7 +81,7 @@ resource "aws_instance" "vm" {
   # The instance type, e.g., t2.micro, specified in variables
   instance_type = var.vm_type
   # Cloud-init script for initializing the VM, if provided
-  user_data = (var.cloud_init != "" ? var.cloud_init : null)
+  user_data_base64 = (var.cloud_init != "" ? var.cloud_init : null)
   # The key pair to use for SSH access, referencing the aws_key_pair resource
   key_name = aws_key_pair.admin.key_name
   # The availability zone for the instance, specified in variables
