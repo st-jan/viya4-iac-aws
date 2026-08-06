@@ -97,15 +97,15 @@ module "vpc" {
 
 # EKS Setup - https://github.com/terraform-aws-modules/terraform-aws-eks
 module "eks" {
-  source                               = "terraform-aws-modules/eks/aws"
-  version                              = "~> 21.24"
-  cluster_name                         = local.cluster_name                                                         # EKS cluster name
-  cluster_version                      = var.kubernetes_version                                                     # Kubernetes version
-  cluster_enabled_log_types            = var.cluster_enabled_log_types == null ? [] : var.cluster_enabled_log_types # EKS audit log types
-  create_cloudwatch_log_group          = var.cluster_enabled_log_types == null ? false : true                       # Create CloudWatch log group if logging enabled
-  cluster_endpoint_private_access      = true                                                                       # Always enable private endpoint
-  cluster_endpoint_public_access       = var.cluster_api_mode == "public" ? true : false                            # Enable public endpoint if requested
-  cluster_endpoint_public_access_cidrs = local.cluster_endpoint_public_access_cidrs                                 # CIDRs allowed for public endpoint
+  source                        = "terraform-aws-modules/eks/aws"
+  version                       = "~> 21.24"
+  name                          = local.cluster_name                                                         # EKS cluster name
+  kubernetes_version            = var.kubernetes_version                                                     # Kubernetes version
+  enabled_log_types             = var.cluster_enabled_log_types == null ? [] : var.cluster_enabled_log_types # EKS audit log types
+  create_cloudwatch_log_group   = var.cluster_enabled_log_types == null ? false : true                       # Create CloudWatch log group if logging enabled
+  endpoint_private_access       = true                                                                       # Always enable private endpoint
+  endpoint_public_access        = var.cluster_api_mode == "public" ? true : false                            # Enable public endpoint if requested
+  endpoint_public_access_cidrs  = local.cluster_endpoint_public_access_cidrs                                 # CIDRs allowed for public endpoint
 
   # AWS requires two or more subnets in different Availability Zones for your cluster's control plane.
   control_plane_subnet_ids = module.vpc.control_plane_subnets # Subnets for EKS control plane
@@ -117,10 +117,10 @@ module "eks" {
   ################################################################################
   # Cluster Security Group
   ################################################################################
-  create_cluster_security_group = false                           # Use custom security group
-  cluster_security_group_id     = local.cluster_security_group_id # Security group for EKS control plane
+  create_security_group = false                           # Use custom security group
+  security_group_id     = local.cluster_security_group_id # Security group for EKS control plane
   # Extend cluster security group rules
-  cluster_security_group_additional_rules = {
+  security_group_additional_rules = {
     egress_nodes_ephemeral_ports_tcp = {
       description                = "To node 1025-65535"
       protocol                   = "tcp"
@@ -160,8 +160,8 @@ module "eks" {
   node_security_group_enable_recommended_rules = false
 
   # enabled by default in v19, setting to false to preserve original behavior.
-  create_kms_key            = false # Do not create KMS key
-  cluster_encryption_config = []    # No encryption config
+  create_kms_key    = false # Do not create KMS key
+  encryption_config = null  # No encryption config
 
   ################################################################################
   # Handle BYO IAM Roles & Policies
@@ -177,19 +177,6 @@ module "eks" {
 
   iam_role_additional_policies = {
     "additional" : "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-  }
-
-  ## Use this to define any values that are common and applicable to all Node Groups
-  eks_managed_node_group_defaults = {
-    create_security_group  = false
-    vpc_security_group_ids = [local.workers_security_group_id]
-
-    # BYO - EKS Workers IAM Role
-    create_iam_role = var.workers_iam_role_arn == null ? true : false
-    iam_role_arn    = var.workers_iam_role_arn
-
-    # Tags to propagate to node groups and their Auto Scaling Groups
-    tags = local.tags
   }
 
   ## Any individual Node Group customizations should go here
