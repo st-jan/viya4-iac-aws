@@ -191,10 +191,6 @@ module "eks" {
     coredns = {
       most_recent = true
     }
-    aws-ebs-csi-driver = {
-      most_recent              = true
-      service_account_role_arn = module.ebs.ebs_csi_account
-    }
   }
 
   ## Any individual Node Group customizations should go here
